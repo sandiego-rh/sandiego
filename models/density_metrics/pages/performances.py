@@ -73,39 +73,37 @@ layout = dbc.Card(
 
 def update_graph(select_org):
 
-    test1 = dframe_pr.groupby(['rg_name', 'repo_name']).sum()
-    test1 = test1.reset_index()
-    pr_final = test1[test1['rg_name'] == select_org].sort_values(by='total', ascending=False)[:10]
+    df_pr = dframe_pr.groupby(['rg_name', 'repo_name']).sum().reset_index()
+    pr_final = df_pr[df_pr['rg_name'] == select_org].sort_values(by='total', ascending=False)[:10]
     
-    test2 = dframe_issue.groupby(['rg_name', 'repo_name']).sum()
-    test2 = test2.reset_index()
-    issue_final = test2[test2['rg_name'] == select_org].sort_values(by='total', ascending=False)[:10]
+    df_issue = dframe_issue.groupby(['rg_name', 'repo_name']).sum().reset_index()
+    issue_final = df_issue[df_issue['rg_name'] == select_org].sort_values(by='total', ascending=False)[:10]
 
-    piechart1 = px.pie(
+    piechart_pr = px.pie(
         data_frame=pr_final,
         values='total',
         names='repo_name',
         hole=.25
     )
-    piechart1.update_traces(textposition='inside', textinfo='percent+label')
-    piechart1.update_layout(
+    piechart_pr.update_traces(textposition='inside', textinfo='percent+label')
+    piechart_pr.update_layout(
     title_text="PR Performance",
     # Add annotations in the center of the donut pies.
     annotations=[dict(text='PR', x=0.5, y=0.5, font_size=20, showarrow=False)])
 
-    piechart2=px.pie(
+    piechart_issue=px.pie(
         data_frame=issue_final,
         values='total',
         names='repo_name',
         hole=.25
     )
-    piechart2.update_traces(textposition='inside', textinfo='percent+label')
-    piechart2.update_layout(
+    piechart_issue.update_traces(textposition='inside', textinfo='percent+label')
+    piechart_issue.update_layout(
     title_text="Issue Performance",
     # Add annotations in the center of the donut pies.
     annotations=[dict(text='Issue', x=0.5, y=0.5, font_size=18, showarrow=False)])
 
-    return (piechart1, piechart2)
+    return (piechart_pr, piechart_issue)
 
 
 #---------------------------------------sub graph for PR---------------------------------------
@@ -118,44 +116,44 @@ def update_graph(select_org):
 
 def update_side_graph1(clk_data, select_org):
     if clk_data is None:
-        dff1 = dframe_pr[dframe_pr['rg_name'] == 'kubernetes']
-        dff2 = dff1[dff1['repo_name'] == 'kubernetes'].groupby(['yearmonth', 'segment', 'color']).sum().reset_index()
+        df_org = dframe_pr[dframe_pr['rg_name'] == 'kubernetes']
+        df_repo = df_org[df_org['repo_name'] == 'kubernetes'].groupby(['yearmonth', 'segment', 'color']).sum().reset_index()
 
-        sub_piechart1 = go.Figure(
+        sub_piechart_pr = go.Figure(
                             data =[
                                 go.Bar(
-                                x = dff2['yearmonth'].tolist(),
-                                y = dff2['num'].tolist(),
-                                marker_color= dff2['color'].tolist(),
-                                text = dff2['segment'].tolist()
+                                x = df_repo['yearmonth'].tolist(),
+                                y = df_repo['num'].tolist(),
+                                marker_color= df_repo['color'].tolist(),
+                                text = df_repo['segment'].tolist()
                                 )],
                             layout=dict(
                                 title=dict(text = 'kubernetes')
                             )
         )
 
-        return sub_piechart1
+        return sub_piechart_pr
     
     else:
         print(f'click data: {clk_data}')
         clk_repo = clk_data['points'][0]['label']
-        dff1 = dframe_pr[dframe_pr['rg_name'] == select_org]
-        dff2 = dff1[dff1['repo_name'] == clk_repo].groupby(['yearmonth', 'segment', 'color']).sum().reset_index()
+        df_org = dframe_pr[dframe_pr['rg_name'] == select_org]
+        df_repo = df_org[df_org['repo_name'] == clk_repo].groupby(['yearmonth', 'segment', 'color']).sum().reset_index()
 
-        sub_piechart2 = go.Figure(
+        sub_piechart_pr = go.Figure(
                             data = [
                                 go.Bar(
-                                    x = dff2['yearmonth'].tolist(),
-                                    y = dff2['num'].tolist(),
-                                    marker_color= dff2['color'].tolist(),
-                                    text = dff2['segment'].tolist()
+                                    x = df_repo['yearmonth'].tolist(),
+                                    y = df_repo['num'].tolist(),
+                                    marker_color= df_repo['color'].tolist(),
+                                    text = df_repo['segment'].tolist()
                                 )],
                             layout = dict(
                                 title=f'{clk_repo}'
                             )
         )
 
-        return sub_piechart2
+        return sub_piechart_pr
 
 
 #---------------------------------------sub graph for Issue---------------------------------------
@@ -169,41 +167,41 @@ def update_side_graph1(clk_data, select_org):
 
 def update_side_graph2(clk_data, select_org):
     if clk_data is None:
-        dff1 = dframe_issue[dframe_issue['rg_name'] == 'kubernetes']
-        dff2 = dff1[dff1['repo_name'] == 'kubernetes'].groupby(['yearmonth', 'segment','color']).sum().reset_index()
+        df_org = dframe_issue[dframe_issue['rg_name'] == 'kubernetes']
+        df_repo = df_org[df_org['repo_name'] == 'kubernetes'].groupby(['yearmonth', 'segment','color']).sum().reset_index()
         
-        sub_piechart3 = go.Figure(
+        sub_piechart_issue = go.Figure(
                             data = [
                                 go.Bar(
-                                    x = dff2['yearmonth'].tolist(),
-                                    y = dff2['num'].tolist(),
-                                    marker_color= dff2['color'].tolist(),
-                                    text = dff2['segment'].tolist()
+                                    x = df_repo['yearmonth'].tolist(),
+                                    y = df_repo['num'].tolist(),
+                                    marker_color= df_repo['color'].tolist(),
+                                    text = df_repo['segment'].tolist()
                                 )],
                             layout=dict(
                                 title=dict(text = 'kubernetes')
                             )
         )
 
-        return sub_piechart3
+        return sub_piechart_issue
     
     else:
         print(f'click data: {clk_data}')
         clk_repo = clk_data['points'][0]['label']
-        dff1 = dframe_issue[dframe_issue['rg_name'] == select_org]
-        dff2 = dff1[dff1['repo_name'] == clk_repo].groupby(['yearmonth', 'segment','color']).sum().reset_index()
+        df_org = dframe_issue[dframe_issue['rg_name'] == select_org]
+        df_repo = df_org[df_org['repo_name'] == clk_repo].groupby(['yearmonth', 'segment','color']).sum().reset_index()
 
-        sub_piechart4 = go.Figure(
+        sub_piechart_issue = go.Figure(
                             data = [
                                 go.Bar(
-                                    x = dff2['yearmonth'].tolist(),
-                                    y = dff2['num'].tolist(),
-                                    marker_color= dff2['color'].tolist(),
-                                    text = dff2['segment'].tolist()
+                                    x = df_repo['yearmonth'].tolist(),
+                                    y = df_repo['num'].tolist(),
+                                    marker_color= df_repo['color'].tolist(),
+                                    text = df_repo['segment'].tolist()
                                 )],
                             layout = dict(
                                 title=f'{clk_repo}'
                             ) 
         )
 
-        return sub_piechart4
+        return sub_piechart_issue

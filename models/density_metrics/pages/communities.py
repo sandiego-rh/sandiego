@@ -60,7 +60,7 @@ def update_graph(select_org):
 
     dff = df_pr_committers[df_pr_committers['rg_name'] == select_org]
 
-    barchart2=px.bar(
+    barchart=px.bar(
         data_frame=dff,
         x="yearmonth",
         y="num_of_unique_commit",
@@ -68,7 +68,7 @@ def update_graph(select_org):
         text="repo_name"
     )
 
-    return (barchart2)
+    return (barchart)
 
 
 #--------------------breakdown graph-------------------
@@ -84,23 +84,23 @@ def update_side_graph(hov_data, clk_data, slct_data, select_org):
 
     # Set kubernetes org, kubernetes repo as the default display
     if clk_data is None:
-        dff2 = df_pr_committers[df_pr_committers['rg_name'] == 'kubernetes']
-        dff2 = dff2[dff2['repo_name'] == 'kubernetes']
-        sub_frame = dff2[["rg_name", "repo_name", 'yearmonth', 'cmt_committer_name', 'cntrb_company', 'cntrb_location', 'num_of_commit']]
+        df_org = df_pr_committers[df_pr_committers['rg_name'] == 'kubernetes']
+        df_repo = df_org[df_org['repo_name'] == 'kubernetes']
+        sub_frame = df_repo[["rg_name", "repo_name", 'yearmonth', 'cmt_committer_name', 'cntrb_company', 'cntrb_location', 'num_of_commit']]
         
         # create a pivot table to display the dataframe by committer
-        table = pd.pivot_table(sub_frame, values='num_of_commit',
+        pvt_table = pd.pivot_table(sub_frame, values='num_of_commit',
                                 index=['cmt_committer_name', 'cntrb_company', 'cntrb_location'],
                             columns=['yearmonth'], aggfunc=np.sum)
 
-        table = table.fillna(0)
-        table = table.reset_index().rename(columns={'2022-1':'Jan', '2022-2':'Feb', '2022-3':'Mar',
+        pvt_table = pvt_table.fillna(0)
+        pvt_table = pvt_table.reset_index().rename(columns={'2022-1':'Jan', '2022-2':'Feb', '2022-3':'Mar',
                                                     '2022-4':'Apr', '2022-5':'May', '2022-6':'Jun',
                                                     '2022-7':'Jul'})
-        table = table.sort_values(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], ascending=False)
+        pvt_table = pvt_table.sort_values(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], ascending=False)
 
 
-        fig = go.Figure(data=[go.Table(
+        table_fig = go.Figure(data=[go.Table(
                 columnwidth = [30,30,30],
                 header=dict(values=["Contributor Name",
                     "Contributor Company",
@@ -111,16 +111,16 @@ def update_side_graph(hov_data, clk_data, slct_data, select_org):
                 font=dict(color='black', family="verdana", size=12),
                 height=30
                 ),
-            cells = dict(values=[table.cmt_committer_name,
-                                table.cntrb_company,
-                                table.cntrb_location,
-                                table.Jan,
-                                table.Feb,
-                                table.Mar,
-                                table.Apr,
-                                table.May,
-                                table.Jun,
-                                table.Jul],
+            cells = dict(values=[pvt_table.cmt_committer_name,
+                                pvt_table.cntrb_company,
+                                pvt_table.cntrb_location,
+                                pvt_table.Jan,
+                                pvt_table.Feb,
+                                pvt_table.Mar,
+                                pvt_table.Apr,
+                                pvt_table.May,
+                                pvt_table.Jun,
+                                pvt_table.Jul],
                     line_color='darkslategray',
                     align='left',
                     font_color=[
@@ -134,57 +134,57 @@ def update_side_graph(hov_data, clk_data, slct_data, select_org):
                         ['green' if row['Feb'] > row['Jan']
                         else "red" if row['Feb'] < row['Jan']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Mar'] > row['Feb']
                         else "red" if row['Mar'] < row['Feb']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Apr'] > row['Mar']
                         else "red" if row['Apr'] < row['Mar']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['May'] > row['Apr']
                         else "red" if row['May'] < row['Apr']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Jun'] > row['May']
                         else "red" if row['Jun'] < row['May']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Jul'] > row['Jun']
                         else "red" if row['Jul'] < row['Jun']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ],
                     height=30
                     ))
                 ])
 
-        fig.update_layout(title= 'kubernetes')
+        table_fig.update_layout(title= 'kubernetes')
 
-        return fig
+        return table_fig
 
     else:
         clk_repo = clk_data['points'][0]['text']
-        dff1 = df_pr_committers[df_pr_committers['rg_name'] == select_org]
-        dff2 = dff1[dff1['repo_name'] == clk_repo]
-        sub_frame = dff2[["rg_name", "repo_name", 'yearmonth', 'cmt_committer_name', 'cntrb_company', 'cntrb_location', 'num_of_commit']]
-        table = pd.pivot_table(sub_frame, values='num_of_commit',
+        df_org = df_pr_committers[df_pr_committers['rg_name'] == select_org]
+        df_repo = df_org[df_org['repo_name'] == clk_repo]
+        sub_frame = df_repo[["rg_name", "repo_name", 'yearmonth', 'cmt_committer_name', 'cntrb_company', 'cntrb_location', 'num_of_commit']]
+        pvt_table = pd.pivot_table(sub_frame, values='num_of_commit',
                                 index=['cmt_committer_name', 'cntrb_company', 'cntrb_location'],
                             columns=['yearmonth'], aggfunc=np.sum)
-        table = table.fillna(0)
-        table = table.reset_index().rename(columns={'2022-1':'Jan', '2022-2':'Feb', '2022-3':'Mar',
+        pvt_table = pvt_table.fillna(0)
+        pvt_table = pvt_table.reset_index().rename(columns={'2022-1':'Jan', '2022-2':'Feb', '2022-3':'Mar',
                                                     '2022-4':'Apr', '2022-5':'May', '2022-6':'Jun',
                                                     '2022-7':'Jul'})
-        table = table.sort_values(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], ascending=False)
+        pvt_table = pvt_table.sort_values(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], ascending=False)
 
-        fig2 = go.Figure(data=[go.Table(
+        table_fig = go.Figure(data=[go.Table(
                 columnwidth = [30,30,30],
                 header=dict(values=["Contributor Name",
                     "Contributor Company",
@@ -195,16 +195,16 @@ def update_side_graph(hov_data, clk_data, slct_data, select_org):
                 font=dict(color='black', family="Lato", size=15),
                 height=30
                 ),
-            cells=dict(values=[table.cmt_committer_name,
-                                table.cntrb_company,
-                                table.cntrb_location,
-                                table.Jan,
-                                table.Feb,
-                                table.Mar,
-                                table.Apr,
-                                table.May,
-                                table.Jun,
-                                table.Jul],
+            cells=dict(values=[pvt_table.cmt_committer_name,
+                                pvt_table.cntrb_company,
+                                pvt_table.cntrb_location,
+                                pvt_table.Jan,
+                                pvt_table.Feb,
+                                pvt_table.Mar,
+                                pvt_table.Apr,
+                                pvt_table.May,
+                                pvt_table.Jun,
+                                pvt_table.Jul],
                     line_color='darkslategray',
                     align='left',
                     font_color=[
@@ -218,38 +218,38 @@ def update_side_graph(hov_data, clk_data, slct_data, select_org):
                         ['green' if row['Feb'] >row['Jan']
                         else "red" if row['Feb'] < row['Jan']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Mar'] >row['Feb']
                         else "red" if row['Mar'] < row['Feb']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Apr'] >row['Mar']
                         else "red" if row['Apr'] < row['Mar']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['May'] >row['Apr']
                         else "red" if row['May'] < row['Apr']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Jun'] >row['May']
                         else "red" if row['Jun'] < row['May']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ['green' if row['Jul'] >row['Jun']
                         else "red" if row['Jul'] < row['Jun']
                         else 'darkslategray'
-                        for index,row in table.iterrows()
+                        for index,row in pvt_table.iterrows()
                         ],
                         ],
                     height=30
                     ))
                 ])
 
-        fig2.update_layout(title=f'{clk_repo}')
+        table_fig.update_layout(title=f'{clk_repo}')
 
-        return fig2
+        return table_fig

@@ -95,120 +95,120 @@ def update_side_graph(clk_data, select_org):
     if clk_data is None:
 
         # Set kubernetes org, kubernetes repo as the default display
-        dff1 = breakdown_frame[breakdown_frame["rg_name"] == "kubernetes"]
-        dff2 = (
-            dff1[dff1["repo_name"] == "kubernetes"].groupby(["rg_name", "repo_name", "yearmonth"]).sum().reset_index()
+        df_org = breakdown_frame[breakdown_frame["rg_name"] == "kubernetes"]
+        df_repo = (
+            df_org[df_org["repo_name"] == "kubernetes"].groupby(["rg_name", "repo_name", "yearmonth"]).sum().reset_index()
         )
-        fig2 = go.Figure(
+        breakdown_fig = go.Figure(
             data=[
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["committer_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["committer_increment"],
                     name="Increase in committer",
                     marker_color="indianred",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["pull_request_increment"],
                     name="Increase in PR",
                     marker_color="lime"
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["open_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["open_pull_request_increment"],
                     name="Increase in open PR",
                     marker_color="aqua",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["closed_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["closed_pull_request_increment"],
                     name="Increase in closed PR",
                     marker_color="cornflowerblue",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["merged_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["merged_pull_request_increment"],
                     name="Increase in merged PR",
                     marker_color="RoyalBlue",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["issue_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["issue_increment"],
                     name="Increase in issue",
                     marker_color="lightsalmon"
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["star_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["star_increment"],
                     name="Increase in star",
                     marker_color="aliceblue"
                 ),
-                go.Bar(x=dff2["yearmonth"],
-                y=dff2["fork_increment"],
+                go.Bar(x=df_repo["yearmonth"],
+                y=df_repo["fork_increment"],
                 name="Increase in fork",
                 marker_color="cornsilk"
                 ),
             ]
         )
 
-        return fig2
+        return breakdown_fig
 
     else:
 
         clk_repo = clk_data["points"][0]["text"]
-        dff1 = breakdown_frame[breakdown_frame["rg_name"] == select_org]
-        dff2 = dff1[dff1["repo_name"] == clk_repo].groupby(["rg_name", "repo_name", "yearmonth"]).sum().reset_index()
-        fig2 = go.Figure(
+        df_org = breakdown_frame[breakdown_frame["rg_name"] == select_org]
+        df_repo = df_org[df_org["repo_name"] == clk_repo].groupby(["rg_name", "repo_name", "yearmonth"]).sum().reset_index()
+        breakdown_fig = go.Figure(
             data=[
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["committer_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["committer_increment"],
                     name="Increase in committer",
                     marker_color="indianred",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["pull_request_increment"],
                     name="Increase in PR",
                     marker_color="lime"
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["open_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["open_pull_request_increment"],
                     name="Increase in open PR",
                     marker_color="aqua",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["closed_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["closed_pull_request_increment"],
                     name="Increase in closed PR",
                     marker_color="cornflowerblue",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["merged_pull_request_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["merged_pull_request_increment"],
                     name="Increase in merged PR",
                     marker_color="RoyalBlue",
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["issue_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["issue_increment"],
                     name="Increase in issue",
                     marker_color="lightsalmon"
                 ),
                 go.Bar(
-                    x=dff2["yearmonth"],
-                    y=dff2["star_increment"],
+                    x=df_repo["yearmonth"],
+                    y=df_repo["star_increment"],
                     name="Increase in star",
                     marker_color="aliceblue"
                 ),
-                go.Bar(x=dff2["yearmonth"],
-                y=dff2["fork_increment"],
+                go.Bar(x=df_repo["yearmonth"],
+                y=df_repo["fork_increment"],
                 name="Increase in fork",
                 marker_color="cornsilk"),
             ]
         )
 
-        fig2.update_layout(title=f"{clk_repo}")
+        breakdown_fig.update_layout(title=f"{clk_repo}")
 
-        return fig2
+        return breakdown_fig
