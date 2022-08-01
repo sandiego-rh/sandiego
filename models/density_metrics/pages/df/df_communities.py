@@ -6,9 +6,15 @@ import psycopg2
 from pages.df.df_activities import engine
 
 df_pr_committers = pd.DataFrame()
-df_pr_authors = pd.DataFrame()
 
 committer_query = salc.sql.text(f"""
+/*
+1. Join contributors, repo, and repo_groups to get the repo_name, org_name
+2. Extract and cast timestamp to year-monthly level
+3. Exclude committers from Red Hat (by identifying their company)
+4. Exclude committers that are likely to be bot (by identifying their name and contribution time inteval)
+5. Get the number of unique committor of an org/repo, along with the committor's info (name, location, company)
+*/
     SELECT x.rg_name,
             x.repo_id,
             x.repo_name,
